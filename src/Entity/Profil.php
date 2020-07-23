@@ -6,11 +6,30 @@ use Doctrine\ORM\Mapping as ORM;
 use App\Repository\ProfilRepository;
 use Doctrine\Common\Collections\Collection;
 use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Annotation\ApiSubresource;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=ProfilRepository::class)
- * @ApiResource()
+ * @ApiResource(
+ * normalizationContext={"groups"={"profil:read"}},
+ *     attributes={
+ *         "security"="is_granted('ROLE_ADMIN')",
+ *         "security_message"="Vous n'avez pas access à cette Ressource"
+* },
+ * 
+ * collectionOperations={
+ *     "get",
+ *      "get_role_admin"={
+*           "method"="GET",
+*           "path"="/admin/profils" ,
+ *}
+ *   },
+ * itemOperations={
+ *     "get","put"
+ *   },
+ * )
  */
 class Profil
 {
@@ -18,16 +37,20 @@ class Profil
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * 
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"profil:read"})
      */
     private $libelle;
 
     /**
      * @ORM\OneToMany(targetEntity=User::class, mappedBy="profil")
+     * @ApiSubresource
+     * 
      */
     private $users;
 
